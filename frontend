@@ -1,0 +1,6 @@
+index.html
+style.css
+script.js
+git add .
+git commit -m "Added frontend"
+git push
