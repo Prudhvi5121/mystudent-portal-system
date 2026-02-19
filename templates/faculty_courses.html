@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>📅 Today's Classes</h2>
+
+<div class="card">
+    {% for cls in today_classes %}
+        <div class="timetable-row">
+            <strong>{{ cls.subject }}</strong>
+            <span>{{ cls.section }}</span>
+            <span>{{ cls.room }}</span>
+            <span>{{ cls.start_time }} - {{ cls.end_time }}</span>
+        </div>
+    {% empty %}
+        <p>No classes today 🎉</p>
+    {% endfor %}
+</div>
+
+<hr>
+
+<h2>🗓 Weekly Timetable</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Day</th>
+            <th>Subject</th>
+            <th>Section</th>
+            <th>Room</th>
+            <th>Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for cls in weekly_classes %}
+        <tr>
+            <td>{{ cls.day }}</td>
+            <td>{{ cls.subject }}</td>
+            <td>{{ cls.section }}</td>
+            <td>{{ cls.room }}</td>
+            <td>{{ cls.start_time }} - {{ cls.end_time }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

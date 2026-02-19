@@ -1,0 +1,2261 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My — Student Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  /* ==================== CSS VARIABLES ==================== */
+  :root {
+    --accent: #6366f1;
+    --accent-2: #8b5cf6;
+    --accent-glow: rgba(99, 102, 241, 0.3);
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --info: #06b6d4;
+    --sidebar-w: 260px;
+    --topbar-h: 64px;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  [data-theme="dark"] {
+    --bg: #0a0b0f;
+    --bg-2: #111318;
+    --bg-3: #1a1d26;
+    --bg-4: #22263a;
+    --border: rgba(255,255,255,0.07);
+    --border-accent: rgba(99,102,241,0.3);
+    --text: #f1f2f8;
+    --text-2: #9aa0c0;
+    --text-3: #5c6289;
+    --glass: rgba(26,29,38,0.8);
+    --glass-border: rgba(255,255,255,0.06);
+    --shadow: 0 8px 32px rgba(0,0,0,0.4);
+    --shadow-accent: 0 8px 32px rgba(99,102,241,0.2);
+  }
+
+  [data-theme="light"] {
+    --bg: #f5f6fa;
+    --bg-2: #ffffff;
+    --bg-3: #f0f2fa;
+    --bg-4: #e8ebf7;
+    --border: rgba(0,0,0,0.08);
+    --border-accent: rgba(99,102,241,0.25);
+    --text: #1a1d2e;
+    --text-2: #4b5280;
+    --text-3: #8891b5;
+    --glass: rgba(255,255,255,0.9);
+    --glass-border: rgba(0,0,0,0.06);
+    --shadow: 0 8px 32px rgba(0,0,0,0.08);
+    --shadow-accent: 0 8px 32px rgba(99,102,241,0.15);
+  }
+
+  /* ==================== RESET ==================== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background var(--transition), color var(--transition);
+  }
+
+  /* ==================== AUTH SCREEN ==================== */
+  #auth-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .auth-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 80% at 20% 20%, rgba(99,102,241,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 60% at 80% 80%, rgba(139,92,246,0.12) 0%, transparent 60%),
+                var(--bg);
+  }
+
+  .auth-grid {
+    position: absolute; inset: 0;
+    background-image: 
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: 0.4;
+  }
+
+  .auth-card {
+    position: relative;
+    width: 440px;
+    background: var(--glass);
+    backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 48px 40px;
+    box-shadow: var(--shadow), 0 0 0 1px var(--border-accent);
+    animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(40px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .auth-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .auth-logo-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 4px 20px var(--accent-glow);
+  }
+
+  .auth-logo h1 {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--text), var(--text-2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+
+  .auth-logo p { font-size: 11px; color: var(--text-3); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .auth-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+  .auth-subtitle { color: var(--text-2); font-size: 14px; margin-bottom: 32px; }
+
+  .form-group { margin-bottom: 20px; }
+  .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text-2); margin-bottom: 8px; letter-spacing: 0.03em; }
+
+  .form-input {
+    width: 100%;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: all var(--transition);
+  }
+  .form-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+    background: var(--bg-2);
+  }
+  .form-input::placeholder { color: var(--text-3); }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 12px 24px; border-radius: var(--radius-sm);
+    font-family: var(--font-body); font-size: 14px; font-weight: 600;
+    cursor: pointer; border: none; transition: all var(--transition);
+    text-decoration: none; white-space: nowrap;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: white; width: 100%;
+    box-shadow: 0 4px 20px var(--accent-glow);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 28px var(--accent-glow); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-ghost { background: transparent; color: var(--text-2); padding: 8px 12px; }
+  .btn-ghost:hover { color: var(--text); background: var(--bg-3); }
+
+  .auth-links { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
+  .auth-link { color: var(--accent); font-size: 13px; cursor: pointer; text-decoration: none; }
+  .auth-link:hover { color: var(--accent-2); }
+
+  .role-pills {
+    display: flex; gap: 8px; margin-bottom: 24px;
+  }
+  .role-pill {
+    flex: 1; padding: 8px 12px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg-3);
+    color: var(--text-2); font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all var(--transition); text-align: center;
+  }
+  .role-pill.active {
+    background: var(--accent); color: white; border-color: var(--accent);
+  }
+
+  /* ==================== APP SHELL ==================== */
+  #app {
+    display: none;
+    min-height: 100vh;
+  }
+
+  /* ==================== SIDEBAR ==================== */
+  .sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0;
+    width: var(--sidebar-w);
+    background: var(--bg-2);
+    border-right: 1px solid var(--border);
+    z-index: 100;
+    display: flex; flex-direction: column;
+    transition: transform var(--transition);
+    overflow-y: auto;
+    scrollbar-width: thin; scrollbar-color: var(--bg-4) transparent;
+  }
+
+  .sidebar-logo {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .sidebar-logo-icon {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 16px var(--accent-glow);
+  }
+  .sidebar-logo-text h2 { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+  .sidebar-logo-text p { font-size: 11px; color: var(--text-3); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
+
+  .sidebar-user {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .user-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700; color: white; flex-shrink: 0;
+    font-family: var(--font-display);
+  }
+  .user-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+  .user-info { overflow: hidden; }
+  .user-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-role { font-size: 11px; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .sidebar-nav { flex: 1; padding: 16px 12px; }
+  .nav-section-label {
+    font-size: 10px; font-weight: 700; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.12em;
+    padding: 8px 8px 4px;
+    margin-top: 8px;
+  }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; border-radius: var(--radius-sm);
+    cursor: pointer; transition: all var(--transition);
+    color: var(--text-2); font-size: 14px; font-weight: 500;
+    margin-bottom: 2px; position: relative;
+  }
+  .nav-item:hover { background: var(--bg-3); color: var(--text); }
+  .nav-item.active {
+    background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1));
+    color: var(--accent);
+    border: 1px solid rgba(99,102,241,0.2);
+  }
+  .nav-item.active::before {
+    content: '';
+    position: absolute; left: -12px; top: 50%; transform: translateY(-50%);
+    width: 3px; height: 24px; background: var(--accent);
+    border-radius: 0 2px 2px 0;
+  }
+  .nav-icon { font-size: 18px; width: 22px; text-align: center; flex-shrink: 0; }
+  .nav-badge {
+    margin-left: auto; background: var(--accent); color: white;
+    font-size: 10px; font-weight: 700; padding: 2px 6px;
+    border-radius: 10px; min-width: 18px; text-align: center;
+  }
+
+  .sidebar-footer {
+    padding: 16px 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ==================== TOPBAR ==================== */
+  .topbar {
+    position: fixed; top: 0; left: var(--sidebar-w); right: 0;
+    height: var(--topbar-h);
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--border);
+    z-index: 99;
+    display: flex; align-items: center; gap: 16px; padding: 0 24px;
+    backdrop-filter: blur(12px);
+  }
+
+  .topbar-page-title {
+    font-family: var(--font-display); font-size: 18px; font-weight: 700;
+    flex: 1;
+  }
+
+  .topbar-search {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg-3); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 8px 14px;
+    width: 240px; transition: all var(--transition);
+  }
+  .topbar-search:focus-within { border-color: var(--accent); width: 280px; }
+  .topbar-search input {
+    background: none; border: none; outline: none;
+    color: var(--text); font-size: 13px; font-family: var(--font-body); width: 100%;
+  }
+  .topbar-search input::placeholder { color: var(--text-3); }
+
+  .topbar-actions { display: flex; align-items: center; gap: 8px; }
+  .topbar-icon-btn {
+    width: 36px; height: 36px; border-radius: var(--radius-sm);
+    background: var(--bg-3); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all var(--transition); font-size: 16px;
+    position: relative;
+  }
+  .topbar-icon-btn:hover { background: var(--bg-4); border-color: var(--border-accent); }
+  .notif-dot {
+    position: absolute; top: 6px; right: 6px;
+    width: 8px; height: 8px; background: var(--danger);
+    border-radius: 50%; border: 2px solid var(--bg-2);
+  }
+
+  /* ==================== MAIN CONTENT ==================== */
+  .main-content {
+    margin-left: var(--sidebar-w);
+    margin-top: var(--topbar-h);
+    padding: 28px;
+    min-height: calc(100vh - var(--topbar-h));
+  }
+
+  /* ==================== PAGES ==================== */
+  .page { display: none; animation: fadeIn 0.3s ease; }
+  .page.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ==================== DASHBOARD CARDS ==================== */
+  .page-header { margin-bottom: 28px; }
+  .page-header h1 { font-family: var(--font-display); font-size: 26px; font-weight: 700; }
+  .page-header p { color: var(--text-2); margin-top: 4px; font-size: 14px; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+
+  .stat-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    position: relative; overflow: hidden;
+    transition: all var(--transition);
+  }
+  .stat-card:hover { border-color: var(--border-accent); transform: translateY(-2px); box-shadow: var(--shadow-accent); }
+  .stat-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--card-color, var(--accent));
+  }
+  .stat-card .stat-icon {
+    width: 44px; height: 44px;
+    background: color-mix(in srgb, var(--card-color, var(--accent)) 15%, transparent);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 16px;
+  }
+  .stat-card .stat-label { font-size: 12px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .stat-card .stat-value { font-family: var(--font-display); font-size: 32px; font-weight: 700; line-height: 1; margin-bottom: 8px; }
+  .stat-card .stat-change { font-size: 12px; color: var(--text-2); }
+  .stat-card .stat-change span { font-weight: 600; }
+  .stat-change .up { color: var(--success); }
+  .stat-change .down { color: var(--danger); }
+
+  .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+  .dashboard-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+  .card {
+    background: var(--bg-2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 22px;
+    transition: border-color var(--transition);
+  }
+  .card:hover { border-color: var(--border-accent); }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .card-title { font-family: var(--font-display); font-size: 15px; font-weight: 700; }
+  .card-action { font-size: 12px; color: var(--accent); cursor: pointer; font-weight: 500; }
+
+  /* ==================== ATTENDANCE BARS ==================== */
+  .attendance-item { margin-bottom: 16px; }
+  .attendance-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .attendance-course { font-size: 13px; font-weight: 500; }
+  .attendance-pct { font-size: 13px; font-weight: 700; }
+  .attendance-bar { height: 6px; background: var(--bg-3); border-radius: 3px; overflow: hidden; }
+  .attendance-fill { height: 100%; border-radius: 3px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+  .fill-safe { background: linear-gradient(90deg, var(--success), #34d399); }
+  .fill-risk { background: linear-gradient(90deg, var(--warning), #fbbf24); }
+  .fill-danger { background: linear-gradient(90deg, var(--danger), #f87171); }
+  .attendance-status { font-size: 11px; font-weight: 600; }
+  .status-safe { color: var(--success); }
+  .status-risk { color: var(--warning); }
+  .status-danger { color: var(--danger); }
+
+  /* ==================== NOTICES ==================== */
+  .notice-item {
+    padding: 14px 0; border-bottom: 1px solid var(--border);
+    display: flex; gap: 14px; align-items: flex-start;
+  }
+  .notice-item:last-child { border-bottom: none; }
+  .notice-badge {
+    padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; flex-shrink: 0;
+  }
+  .notice-badge.exam { background: rgba(239,68,68,0.15); color: var(--danger); }
+  .notice-badge.event { background: rgba(99,102,241,0.15); color: var(--accent); }
+  .notice-badge.general { background: rgba(6,182,212,0.15); color: var(--info); }
+  .notice-badge.important { background: rgba(245,158,11,0.15); color: var(--warning); }
+  .notice-content .notice-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .notice-content .notice-time { font-size: 12px; color: var(--text-3); }
+  .notice-pin { margin-left: auto; font-size: 12px; }
+
+  /* ==================== GRADES TABLE ==================== */
+  .table-wrapper { overflow-x: auto; }
+  table { width: 100%; border-collapse: separate; border-spacing: 0; }
+  thead th {
+    text-align: left; padding: 10px 14px;
+    font-size: 11px; font-weight: 700; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr { transition: background var(--transition); }
+  tbody tr:hover { background: var(--bg-3); }
+  tbody td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid var(--border); }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .grade-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 8px;
+    font-size: 12px; font-weight: 800; font-family: var(--font-display);
+  }
+  .grade-O { background: rgba(16,185,129,0.15); color: var(--success); }
+  .grade-A { background: rgba(99,102,241,0.15); color: var(--accent); }
+  .grade-B { background: rgba(6,182,212,0.15); color: var(--info); }
+  .grade-C { background: rgba(245,158,11,0.15); color: var(--warning); }
+  .grade-F { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+  /* ==================== TIMETABLE ==================== */
+  .timetable-grid { display: grid; grid-template-columns: 80px repeat(5, 1fr); gap: 2px; }
+  .tt-header { text-align: center; padding: 10px 6px; font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .tt-time { font-size: 11px; color: var(--text-3); padding: 6px; text-align: right; display: flex; align-items: center; justify-content: flex-end; }
+  .tt-slot {
+    background: var(--bg-3); border-radius: 8px; padding: 8px 10px;
+    min-height: 64px; display: flex; flex-direction: column; justify-content: center;
+    border: 1px solid var(--border); transition: all var(--transition);
+  }
+  .tt-slot:hover { border-color: var(--border-accent); }
+  .tt-slot.occupied { background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.08)); border-color: rgba(99,102,241,0.2); }
+  .tt-slot.lab { background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(52,211,153,0.08)); border-color: rgba(16,185,129,0.2); }
+  .tt-course { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+  .tt-faculty { font-size: 10px; color: var(--text-3); }
+  .tt-room { font-size: 10px; color: var(--accent); }
+
+  /* ==================== ASSIGNMENTS ==================== */
+  .assignment-card {
+    background: var(--bg-3); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 16px;
+    margin-bottom: 12px; display: flex; gap: 16px; align-items: center;
+    transition: all var(--transition);
+  }
+  .assignment-card:hover { border-color: var(--border-accent); background: var(--bg-4); }
+  .assignment-icon { font-size: 24px; width: 48px; height: 48px; background: var(--bg-2); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .assignment-info { flex: 1; }
+  .assignment-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .assignment-meta { font-size: 12px; color: var(--text-2); display: flex; gap: 12px; }
+  .assignment-deadline { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .deadline-badge { padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; }
+  .deadline-due { background: rgba(245,158,11,0.15); color: var(--warning); }
+  .deadline-overdue { background: rgba(239,68,68,0.15); color: var(--danger); }
+  .deadline-submitted { background: rgba(16,185,129,0.15); color: var(--success); }
+
+  /* ==================== PROFILE ==================== */
+  .profile-header-card {
+    background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1));
+    border: 1px solid rgba(99,102,241,0.2);
+    border-radius: var(--radius); padding: 32px;
+    display: flex; gap: 28px; align-items: center; margin-bottom: 24px;
+  }
+  .profile-avatar-lg {
+    width: 100px; height: 100px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px; font-weight: 800; color: white; flex-shrink: 0;
+    font-family: var(--font-display);
+    box-shadow: 0 8px 32px var(--accent-glow);
+  }
+  .profile-info { flex: 1; }
+  .profile-name { font-family: var(--font-display); font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+  .profile-meta { display: flex; gap: 20px; flex-wrap: wrap; }
+  .profile-meta-item { font-size: 13px; color: var(--text-2); display: flex; align-items: center; gap: 6px; }
+  .profile-meta-item span { font-size: 14px; }
+  .profile-stats { display: flex; gap: 24px; margin-top: 20px; }
+  .profile-stat { text-align: center; }
+  .profile-stat-value { font-family: var(--font-display); font-size: 24px; font-weight: 700; color: var(--accent); }
+  .profile-stat-label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  .info-group { margin-bottom: 20px; }
+  .info-label { font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .info-value { font-size: 14px; font-weight: 500; }
+
+  /* ==================== MATERIALS ==================== */
+  .material-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+  .material-card {
+    background: var(--bg-3); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 20px;
+    text-align: center; transition: all var(--transition);
+    cursor: pointer;
+  }
+  .material-card:hover { border-color: var(--border-accent); transform: translateY(-2px); box-shadow: var(--shadow); }
+  .material-icon { font-size: 40px; margin-bottom: 12px; }
+  .material-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .material-meta { font-size: 11px; color: var(--text-3); }
+  .material-type-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    margin-top: 8px;
+  }
+
+  /* ==================== CGPA RING ==================== */
+  .cgpa-ring-container { text-align: center; padding: 20px 0; }
+  .cgpa-ring { width: 140px; height: 140px; position: relative; margin: 0 auto 16px; }
+  .cgpa-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .cgpa-ring-bg { fill: none; stroke: var(--bg-3); stroke-width: 12; }
+  .cgpa-ring-fill { fill: none; stroke: url(#ring-gradient); stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
+  .cgpa-value { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+  .cgpa-number { font-family: var(--font-display); font-size: 28px; font-weight: 800; color: var(--accent); }
+  .cgpa-label { font-size: 11px; color: var(--text-3); }
+
+  /* ==================== NOTIFICATIONS ==================== */
+  .notif-panel {
+    position: absolute; top: calc(100% + 8px); right: 0;
+    width: 360px; background: var(--bg-2); border: 1px solid var(--border);
+    border-radius: var(--radius); box-shadow: var(--shadow);
+    display: none; z-index: 1000;
+    animation: slideDown 0.2s ease;
+  }
+  .notif-panel.open { display: block; }
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+  .notif-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .notif-header h3 { font-family: var(--font-display); font-size: 15px; font-weight: 700; }
+  .notif-item {
+    padding: 14px 20px; border-bottom: 1px solid var(--border);
+    display: flex; gap: 12px; cursor: pointer;
+    transition: background var(--transition);
+  }
+  .notif-item:hover { background: var(--bg-3); }
+  .notif-item.unread { background: rgba(99,102,241,0.04); }
+  .notif-dot-sm { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 6px; }
+  .notif-body { font-size: 13px; }
+  .notif-body strong { font-weight: 600; }
+  .notif-time { font-size: 11px; color: var(--text-3); margin-top: 4px; }
+
+  /* ==================== ADMIN FEATURES ==================== */
+  .admin-toolbar {
+    display: flex; gap: 12px; align-items: center; margin-bottom: 20px; flex-wrap: wrap;
+  }
+  .search-input {
+    background: var(--bg-3); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 9px 14px;
+    font-family: var(--font-body); font-size: 13px; color: var(--text);
+    outline: none; transition: all var(--transition); width: 240px;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .select-input {
+    background: var(--bg-3); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 9px 14px;
+    font-family: var(--font-body); font-size: 13px; color: var(--text);
+    outline: none; cursor: pointer;
+  }
+  .btn-sm { padding: 8px 16px; font-size: 13px; }
+  .btn-success { background: var(--success); color: white; box-shadow: 0 4px 16px rgba(16,185,129,0.3); }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-2); }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+  .student-row-actions { display: flex; gap: 6px; }
+  .action-btn {
+    width: 30px; height: 30px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg-3);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; transition: all var(--transition);
+  }
+  .action-btn:hover { background: var(--bg-4); }
+  .action-btn.edit:hover { border-color: var(--accent); }
+  .action-btn.delete:hover { border-color: var(--danger); background: rgba(239,68,68,0.1); }
+
+  /* ==================== PAGINATION ==================== */
+  .pagination { display: flex; gap: 4px; align-items: center; margin-top: 20px; justify-content: center; }
+  .page-btn {
+    width: 32px; height: 32px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg-3);
+    cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-2);
+    display: flex; align-items: center; justify-content: center;
+    transition: all var(--transition);
+  }
+  .page-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .page-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+  /* ==================== TOAST ==================== */
+  .toast-container {
+    position: fixed; bottom: 24px; right: 24px;
+    z-index: 9999; display: flex; flex-direction: column; gap: 10px;
+  }
+  .toast {
+    background: var(--bg-2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 14px 18px;
+    display: flex; align-items: center; gap: 12px;
+    box-shadow: var(--shadow); min-width: 280px;
+    animation: slideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+  .toast-success { border-left: 3px solid var(--success); }
+  .toast-error { border-left: 3px solid var(--danger); }
+  .toast-info { border-left: 3px solid var(--accent); }
+  .toast-icon { font-size: 18px; flex-shrink: 0; }
+  .toast-text { flex: 1; font-size: 13px; font-weight: 500; }
+  .toast-close { cursor: pointer; color: var(--text-3); font-size: 14px; }
+
+  /* ==================== MOBILE MENU ==================== */
+  .mobile-menu-btn {
+    display: none; width: 36px; height: 36px; border-radius: var(--radius-sm);
+    background: var(--bg-3); border: 1px solid var(--border);
+    align-items: center; justify-content: center; cursor: pointer; font-size: 18px;
+  }
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; backdrop-filter: blur(2px); }
+
+  /* ==================== RESPONSIVE ==================== */
+  @media (max-width: 1024px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .dashboard-grid-3 { grid-template-columns: 1fr 1fr; }
+    .profile-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 768px) {
+    :root { --sidebar-w: 260px; }
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-overlay.open { display: block; }
+    .mobile-menu-btn { display: flex; }
+    .topbar { left: 0; }
+    .main-content { margin-left: 0; padding: 16px; }
+    .auth-card { width: 100%; max-width: 440px; padding: 32px 24px; }
+    .topbar-search { display: none; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .dashboard-grid-3 { grid-template-columns: 1fr; }
+    .profile-header-card { flex-direction: column; text-align: center; }
+    .profile-meta { justify-content: center; }
+    .profile-stats { justify-content: center; }
+    .material-grid { grid-template-columns: 1fr 1fr; }
+    .timetable-grid { grid-template-columns: 60px repeat(5, 1fr); font-size: 10px; }
+  }
+
+  @media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .role-pills { flex-direction: column; }
+    .auth-card { border-radius: 16px; }
+    .material-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ==================== UTILITY ==================== */
+  .hidden { display: none !important; }
+  .flex { display: flex; }
+  .items-center { align-items: center; }
+  .gap-2 { gap: 8px; }
+  .gap-3 { gap: 12px; }
+  .mt-4 { margin-top: 16px; }
+  .text-sm { font-size: 13px; }
+  .text-xs { font-size: 11px; }
+  .text-muted { color: var(--text-2); }
+  .font-bold { font-weight: 700; }
+  .w-full { width: 100%; }
+  .loading { display: flex; align-items: center; justify-content: center; padding: 40px; }
+  .spinner {
+    width: 32px; height: 32px; border: 3px solid var(--border);
+    border-top-color: var(--accent); border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--text-3); }
+  .empty-state .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
+  .empty-state p { font-size: 14px; }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--bg-4); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+</style>
+</head>
+<body>
+
+<!-- ==================== AUTH SCREEN ==================== -->
+<div id="auth-screen">
+  <div class="auth-bg"></div>
+  <div class="auth-grid"></div>
+
+  <!-- Login Card -->
+  <div class="auth-card" id="login-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">🎓</div>
+      <div>
+        <h1>My Portal</h1>
+        <p>Student Management System</p>
+      </div>
+    </div>
+    <h2 class="auth-title">Welcome back</h2>
+    <p class="auth-subtitle">Sign in to your account to continue</p>
+    <div class="role-pills">
+      <div class="role-pill active" onclick="setRole('student', this)">🧑‍🎓 Student</div>
+      <div class="role-pill" onclick="setRole('faculty', this)">👨‍🏫 Faculty</div>
+      <div class="role-pill" onclick="setRole('admin', this)">⚙️ Admin</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <input type="email" class="form-input" id="login-email" placeholder="your@email.edu" value="prudhvi@gmail.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input type="password" class="form-input" id="login-password" placeholder="Enter your password" value="Prudhvi@123">
+    </div>
+    <button class="btn btn-primary" onclick="handleLogin()" id="login-btn">
+      <span>Sign In</span> →
+    </button>
+    <div class="auth-links">
+      <a class="auth-link" onclick="showForgotPassword()">Forgot password?</a>
+      <span class="text-sm text-muted">Demo: student1@gmail.com</span>
+    </div>
+  </div>
+
+  <!-- Forgot Password Card -->
+  <div class="auth-card hidden" id="forgot-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">🔑</div>
+      <div><h1>My Portal</h1><p>Student Management System</p></div>
+    </div>
+    <h2 class="auth-title">Reset Password</h2>
+    <p class="auth-subtitle">Enter your email to receive a reset OTP</p>
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <input type="email" class="form-input" id="reset-email" placeholder="your@email.edu">
+    </div>
+    <div class="form-group hidden" id="otp-group">
+      <label class="form-label">Enter OTP</label>
+      <input type="text" class="form-input" id="reset-otp" placeholder="6-digit OTP" maxlength="6">
+    </div>
+    <div class="form-group hidden" id="new-password-group">
+      <label class="form-label">New Password</label>
+      <input type="password" class="form-input" id="new-password" placeholder="New password">
+    </div>
+    <button class="btn btn-primary" onclick="handlePasswordReset()">Send OTP</button>
+    <div class="auth-links">
+      <a class="auth-link" onclick="showLogin()">← Back to Login</a>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== APP SHELL ==================== -->
+<div id="app">
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">🎓</div>
+      <div class="sidebar-logo-text">
+        <h2>My Portal</h2>
+        <p>Student Management System</p>
+      </div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar" id="sidebar-avatar">S</div>
+      <div class="user-info">
+        <div class="user-name" id="sidebar-name">Loading...</div>
+        <div class="user-role" id="sidebar-role">Student</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <!-- Student Nav -->
+      <div id="student-nav">
+        <div class="nav-section-label">Overview</div>
+        <div class="nav-item active" onclick="navigate('dashboard', this)">
+          <span class="nav-icon">🏠</span> Dashboard
+        </div>
+        <div class="nav-item" onclick="navigate('profile', this)">
+          <span class="nav-icon">👤</span> My Profile
+        </div>
+        <div class="nav-section-label">Academics</div>
+        <div class="nav-item" onclick="navigate('courses', this)">
+          <span class="nav-icon">📚</span> My Courses
+        </div>
+        <div class="nav-item" onclick="navigate('attendance', this)">
+          <span class="nav-icon">✅</span> Attendance
+        </div>
+        <div class="nav-item" onclick="navigate('results', this)">
+          <span class="nav-icon">🏆</span> Results & Marks
+        </div>
+        <div class="nav-item" onclick="navigate('assignments', this)">
+          <span class="nav-icon">📝</span> Assignments
+          <span class="nav-badge" id="assignment-badge">3</span>
+        </div>
+        <div class="nav-item" onclick="navigate('timetable', this)">
+          <span class="nav-icon">🗓️</span> Timetable
+        </div>
+        <div class="nav-section-label">Resources</div>
+        <div class="nav-item" onclick="navigate('materials', this)">
+          <span class="nav-icon">📂</span> Study Materials
+        </div>
+        <div class="nav-item" onclick="navigate('notices', this)">
+          <span class="nav-icon">📢</span> Notices & Events
+        </div>
+      </div>
+
+      <!-- Admin Nav (hidden by default) -->
+      <div id="admin-nav" class="hidden">
+        <div class="nav-section-label">Admin</div>
+        <div class="nav-item active" onclick="navigate('admin-dashboard', this)">
+          <span class="nav-icon">📊</span> Dashboard
+        </div>
+        <div class="nav-item" onclick="navigate('admin-students', this)">
+          <span class="nav-icon">🧑‍🎓</span> Manage Students
+        </div>
+        <div class="nav-item" onclick="navigate('admin-faculty', this)">
+          <span class="nav-icon">👨‍🏫</span> Manage Faculty
+        </div>
+        <div class="nav-item" onclick="navigate('admin-courses', this)">
+          <span class="nav-icon">📚</span> Courses & Subjects
+        </div>
+        <div class="nav-item" onclick="navigate('admin-notices', this)">
+          <span class="nav-icon">📢</span> Notices
+        </div>
+        <div class="nav-item" onclick="navigate('admin-results', this)">
+          <span class="nav-icon">🏆</span> Upload Results
+        </div>
+        <div class="nav-item" onclick="navigate('admin-reports', this)">
+          <span class="nav-icon">📈</span> Reports
+        </div>
+      </div>
+
+      <!-- Faculty Nav (hidden by default) -->
+      <div id="faculty-nav" class="hidden">
+        <div class="nav-section-label">Faculty</div>
+        <div class="nav-item active" onclick="navigate('faculty-dashboard', this)">
+          <span class="nav-icon">🏠</span> Dashboard
+        </div>
+        <div class="nav-item" onclick="navigate('faculty-courses', this)">
+          <span class="nav-icon">📚</span> My Courses
+        </div>
+        <div class="nav-item" onclick="navigate('faculty-attendance', this)">
+          <span class="nav-icon">✅</span> Mark Attendance
+        </div>
+        <div class="nav-item" onclick="navigate('faculty-assignments', this)">
+          <span class="nav-icon">📝</span> Assignments
+        </div>
+        <div class="nav-item" onclick="navigate('faculty-grades', this)">
+          <span class="nav-icon">🏆</span> Upload Grades
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="nav-item" onclick="toggleTheme()">
+        <span class="nav-icon" id="theme-icon">🌙</span>
+        <span id="theme-label">Dark Mode</span>
+      </div>
+      <div class="nav-item" onclick="handleLogout()">
+        <span class="nav-icon">🚪</span> Logout
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== TOPBAR ===== -->
+  <header class="topbar">
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+    <div class="topbar-page-title" id="page-title">Dashboard</div>
+    <div class="topbar-search">
+      <span style="font-size:14px;color:var(--text-3)">🔍</span>
+      <input type="text" placeholder="Search courses, notices..." oninput="handleSearch(this.value)">
+    </div>
+    <div class="topbar-actions">
+      <div class="topbar-icon-btn" onclick="toggleNotifications()" style="position:relative">
+        🔔
+        <div class="notif-dot"></div>
+        <!-- Notification Panel -->
+        <div class="notif-panel" id="notif-panel">
+          <div class="notif-header">
+            <h3>Notifications</h3>
+            <span class="text-xs text-muted" style="cursor:pointer">Mark all read</span>
+          </div>
+          <div class="notif-item unread">
+            <div class="notif-dot-sm"></div>
+            <div class="notif-body">
+              <div><strong>New Assignment</strong> posted in Data Structures</div>
+              <div class="notif-time">2 hours ago</div>
+            </div>
+          </div>
+          <div class="notif-item unread">
+            <div class="notif-dot-sm"></div>
+            <div class="notif-body">
+              <div><strong>Exam Schedule</strong> has been released</div>
+              <div class="notif-time">5 hours ago</div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div style="width:8px;flex-shrink:0"></div>
+            <div class="notif-body">
+              <div>Attendance marked for <strong>DBMS</strong></div>
+              <div class="notif-time">Yesterday</div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div style="width:8px;flex-shrink:0"></div>
+            <div class="notif-body">
+              <div>Marks uploaded for <strong>Midterm</strong></div>
+              <div class="notif-time">2 days ago</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="topbar-icon-btn" onclick="navigate('profile', document.querySelector('.nav-item:nth-child(2)'))">
+        <div class="user-avatar" id="topbar-avatar" style="width:32px;height:32px;font-size:13px">S</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main-content">
+
+    <!-- ===== STUDENT DASHBOARD PAGE ===== -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <h1>Good morning, <span id="welcome-name">Student</span> 👋</h1>
+        <p>Here's what's happening in your academic journey today.</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card" style="--card-color: #6366f1">
+          <div class="stat-icon">📚</div>
+          <div class="stat-label">Enrolled Courses</div>
+          <div class="stat-value">6</div>
+          <div class="stat-change">Current semester</div>
+        </div>
+        <div class="stat-card" style="--card-color: #10b981">
+          <div class="stat-icon">✅</div>
+          <div class="stat-label">Avg. Attendance</div>
+          <div class="stat-value" id="avg-attendance">78%</div>
+          <div class="stat-change"><span class="up">↑ 3%</span> from last month</div>
+        </div>
+        <div class="stat-card" style="--card-color: #f59e0b">
+          <div class="stat-icon">🏆</div>
+          <div class="stat-label">Current CGPA</div>
+          <div class="stat-value" id="dash-cgpa">8.4</div>
+          <div class="stat-change"><span class="up">↑ 0.2</span> from last semester</div>
+        </div>
+        <div class="stat-card" style="--card-color: #ef4444">
+          <div class="stat-icon">📝</div>
+          <div class="stat-label">Pending Assignments</div>
+          <div class="stat-value">3</div>
+          <div class="stat-change"><span class="down">Due this week</span></div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Attendance Overview</span>
+            <span class="card-action" onclick="navigate('attendance', null)">View All →</span>
+          </div>
+          <div id="attendance-overview"></div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div class="card">
+            <div class="card-header"><span class="card-title">CGPA Progress</span></div>
+            <div class="cgpa-ring-container">
+              <div class="cgpa-ring">
+                <svg viewBox="0 0 140 140">
+                  <defs>
+                    <linearGradient id="ring-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#6366f1"/>
+                      <stop offset="100%" stop-color="#8b5cf6"/>
+                    </linearGradient>
+                  </defs>
+                  <circle class="cgpa-ring-bg" cx="70" cy="70" r="54"/>
+                  <circle class="cgpa-ring-fill" cx="70" cy="70" r="54" id="cgpa-ring-fill"
+                    stroke-dasharray="339.3" stroke-dashoffset="339.3"/>
+                </svg>
+                <div class="cgpa-value">
+                  <div class="cgpa-number" id="cgpa-display">8.4</div>
+                  <div class="cgpa-label">/ 10.0</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap">
+                <div style="text-align:center">
+                  <div style="font-size:18px;font-weight:700;color:var(--accent);font-family:var(--font-display)">Sem 1</div>
+                  <div style="font-size:11px;color:var(--text-3)">8.2 GPA</div>
+                </div>
+                <div style="text-align:center">
+                  <div style="font-size:18px;font-weight:700;color:var(--accent);font-family:var(--font-display)">Sem 2</div>
+                  <div style="font-size:11px;color:var(--text-3)">8.4 GPA</div>
+                </div>
+                <div style="text-align:center">
+                  <div style="font-size:18px;font-weight:700;color:var(--accent);font-family:var(--font-display)">Sem 3</div>
+                  <div style="font-size:11px;color:var(--text-3)">8.6 GPA</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Recent Notices</span>
+              <span class="card-action" onclick="navigate('notices', null)">All →</span>
+            </div>
+            <div id="recent-notices"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid-3" style="margin-top:20px">
+        <div class="card" style="grid-column: span 2">
+          <div class="card-header"><span class="card-title">Grade Performance</span></div>
+          <canvas id="grades-chart" height="120"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Upcoming Deadlines</span></div>
+          <div id="upcoming-deadlines"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PROFILE PAGE ===== -->
+    <div class="page" id="page-profile">
+      <div class="page-header">
+        <h1>My Profile</h1>
+        <p>Manage your personal and academic information</p>
+      </div>
+      <div class="profile-header-card">
+        <div class="profile-avatar-lg" id="profile-avatar-lg">S</div>
+        <div class="profile-info">
+          <div class="profile-name" id="profile-fullname">Student Name</div>
+          <div class="profile-meta" id="profile-meta">
+            <div class="profile-meta-item"><span>🎓</span> B.Tech CSE — Semester 3</div>
+            <div class="profile-meta-item"><span>📧</span> student1@gmail.com</div>
+            <div class="profile-meta-item"><span>🏷️</span> CSE2024001</div>
+            <div class="profile-meta-item"><span>📱</span> +91 98765 43210</div>
+          </div>
+          <div class="profile-stats">
+            <div class="profile-stat"><div class="profile-stat-value" id="prof-cgpa">8.4</div><div class="profile-stat-label">CGPA</div></div>
+            <div class="profile-stat"><div class="profile-stat-value">78%</div><div class="profile-stat-label">Attendance</div></div>
+            <div class="profile-stat"><div class="profile-stat-value">6</div><div class="profile-stat-label">Courses</div></div>
+            <div class="profile-stat"><div class="profile-stat-value">3</div><div class="profile-stat-label">Pending</div></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <label class="btn btn-primary btn-sm" style="cursor:pointer">
+            📷 Upload Photo
+            <input type="file" accept="image/*" style="display:none" onchange="handlePhotoUpload(this)">
+          </label>
+          <button class="btn btn-outline btn-sm" onclick="editProfile()">✏️ Edit Profile</button>
+        </div>
+      </div>
+
+      <div class="profile-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Personal Information</span></div>
+          <div class="info-group"><div class="info-label">Full Name</div><div class="info-value" id="pinfo-name">—</div></div>
+          <div class="info-group"><div class="info-label">Email</div><div class="info-value" id="pinfo-email">—</div></div>
+          <div class="info-group"><div class="info-label">Phone</div><div class="info-value" id="pinfo-phone">—</div></div>
+          <div class="info-group"><div class="info-label">Date of Birth</div><div class="info-value" id="pinfo-dob">—</div></div>
+          <div class="info-group"><div class="info-label">Blood Group</div><div class="info-value" id="pinfo-blood">—</div></div>
+          <div class="info-group"><div class="info-label">Address</div><div class="info-value" id="pinfo-address">—</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Academic Details</span></div>
+          <div class="info-group"><div class="info-label">Student ID</div><div class="info-value" id="pinfo-sid">—</div></div>
+          <div class="info-group"><div class="info-label">Roll Number</div><div class="info-value" id="pinfo-roll">—</div></div>
+          <div class="info-group"><div class="info-label">Department</div><div class="info-value" id="pinfo-dept">—</div></div>
+          <div class="info-group"><div class="info-label">Semester</div><div class="info-value" id="pinfo-sem">—</div></div>
+          <div class="info-group"><div class="info-label">Section</div><div class="info-value" id="pinfo-section">—</div></div>
+          <div class="info-group"><div class="info-label">Batch Year</div><div class="info-value" id="pinfo-batch">—</div></div>
+          <div class="info-group"><div class="info-label">Guardian</div><div class="info-value" id="pinfo-guardian">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ATTENDANCE PAGE ===== -->
+    <div class="page" id="page-attendance">
+      <div class="page-header">
+        <h1>Attendance</h1>
+        <p>Track your subject-wise attendance and analytics</p>
+      </div>
+
+      <div class="stats-grid" style="margin-bottom:24px">
+        <div class="stat-card" style="--card-color:#10b981">
+          <div class="stat-icon">📊</div>
+          <div class="stat-label">Overall Attendance</div>
+          <div class="stat-value">78%</div>
+          <div class="stat-change">Across all subjects</div>
+        </div>
+        <div class="stat-card" style="--card-color:#6366f1">
+          <div class="stat-icon">✅</div>
+          <div class="stat-label">Classes Attended</div>
+          <div class="stat-value">156</div>
+          <div class="stat-change">Out of 200 total</div>
+        </div>
+        <div class="stat-card" style="--card-color:#f59e0b">
+          <div class="stat-icon">⚠️</div>
+          <div class="stat-label">At Risk Subjects</div>
+          <div class="stat-value">2</div>
+          <div class="stat-change">Below 75% attendance</div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Subject-wise Attendance</span></div>
+          <div id="attendance-detail-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Monthly Trend</span></div>
+          <canvas id="attendance-chart" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== RESULTS PAGE ===== -->
+    <div class="page" id="page-results">
+      <div class="page-header">
+        <h1>Results & Marks</h1>
+        <p>View your semester-wise results and download mark memos</p>
+      </div>
+      <div class="flex gap-3 items-center" style="margin-bottom:20px;flex-wrap:wrap">
+        <select class="select-input" onchange="filterResults(this.value)">
+          <option>All Semesters</option>
+          <option>Semester 1</option>
+          <option>Semester 2</option>
+          <option>Semester 3</option>
+        </select>
+        <select class="select-input">
+          <option>2024-2025</option>
+          <option>2023-2024</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="downloadMarksMemo()">📄 Download Marks Memo</button>
+      </div>
+      <div class="card">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Course Code</th>
+                <th>Course Name</th>
+                <th>Exam Type</th>
+                <th>Marks</th>
+                <th>Max</th>
+                <th>%</th>
+                <th>Grade</th>
+              </tr>
+            </thead>
+            <tbody id="results-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== COURSES PAGE ===== -->
+    <div class="page" id="page-courses">
+      <div class="page-header">
+        <h1>My Courses</h1>
+        <p>Enrolled courses for current semester</p>
+      </div>
+      <div id="courses-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px"></div>
+    </div>
+
+    <!-- ===== ASSIGNMENTS PAGE ===== -->
+    <div class="page" id="page-assignments">
+      <div class="page-header">
+        <h1>Assignments</h1>
+        <p>View and submit your assignments</p>
+      </div>
+      <div class="flex gap-3" style="margin-bottom:20px;flex-wrap:wrap">
+        <div class="role-pill active" style="flex:0 0 auto;padding:6px 16px" onclick="filterAssignments('all', this)">All</div>
+        <div class="role-pill" style="flex:0 0 auto;padding:6px 16px" onclick="filterAssignments('pending', this)">Pending</div>
+        <div class="role-pill" style="flex:0 0 auto;padding:6px 16px" onclick="filterAssignments('submitted', this)">Submitted</div>
+        <div class="role-pill" style="flex:0 0 auto;padding:6px 16px" onclick="filterAssignments('overdue', this)">Overdue</div>
+      </div>
+      <div id="assignments-list"></div>
+    </div>
+
+    <!-- ===== TIMETABLE PAGE ===== -->
+    <div class="page" id="page-timetable">
+      <div class="page-header">
+        <h1>Timetable</h1>
+        <p>Your weekly class schedule</p>
+      </div>
+      <div class="card" style="overflow-x:auto">
+        <div id="timetable-container"></div>
+      </div>
+    </div>
+
+    <!-- ===== NOTICES PAGE ===== -->
+    <div class="page" id="page-notices">
+      <div class="page-header">
+        <h1>Notices & Events</h1>
+        <p>College announcements and upcoming events</p>
+      </div>
+      <div class="flex gap-3" style="margin-bottom:20px;flex-wrap:wrap">
+        <div class="role-pill active" style="flex:0 0 auto;padding:6px 16px" onclick="filterNotices('ALL', this)">All</div>
+        <div class="role-pill" style="flex:0 0 auto;padding:6px 16px" onclick="filterNotices('EXAM', this)">Exams</div>
+        <div class="role-pill" style="flex:0 0 auto;padding:6px 16px" onclick="filterNotices('EVENT', this)">Events</div>
+        <div class="role-pill" style="flex:0 0 auto;padding:6px 16px" onclick="filterNotices('IMPORTANT', this)">Important</div>
+      </div>
+      <div class="card" id="notices-container"></div>
+    </div>
+
+    <!-- ===== MATERIALS PAGE ===== -->
+    <div class="page" id="page-materials">
+      <div class="page-header">
+        <h1>Study Materials</h1>
+        <p>Download notes, slides, and study resources</p>
+      </div>
+      <div class="flex gap-3" style="margin-bottom:20px;flex-wrap:wrap">
+        <input class="search-input" placeholder="Search materials..." oninput="searchMaterials(this.value)">
+        <select class="select-input" onchange="filterMaterials(this.value)">
+          <option value="">All Types</option>
+          <option value="NOTES">Notes</option>
+          <option value="SLIDES">Slides</option>
+          <option value="PDF">PDF</option>
+          <option value="PAST_PAPER">Past Papers</option>
+        </select>
+      </div>
+      <div class="material-grid" id="materials-grid"></div>
+    </div>
+
+    <!-- ===== ADMIN DASHBOARD PAGE ===== -->
+    <div class="page" id="page-admin-dashboard">
+      <div class="page-header">
+        <h1>Admin Dashboard</h1>
+        <p>Portal overview and management</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card" style="--card-color:#6366f1">
+          <div class="stat-icon">🧑‍🎓</div>
+          <div class="stat-label">Total Students</div>
+          <div class="stat-value">1,247</div>
+          <div class="stat-change"><span class="up">↑ 12%</span> this year</div>
+        </div>
+        <div class="stat-card" style="--card-color:#10b981">
+          <div class="stat-icon">👨‍🏫</div>
+          <div class="stat-label">Total Faculty</div>
+          <div class="stat-value">86</div>
+          <div class="stat-change">Across 8 departments</div>
+        </div>
+        <div class="stat-card" style="--card-color:#f59e0b">
+          <div class="stat-icon">📚</div>
+          <div class="stat-label">Active Courses</div>
+          <div class="stat-value">142</div>
+          <div class="stat-change">Current semester</div>
+        </div>
+        <div class="stat-card" style="--card-color:#ef4444">
+          <div class="stat-icon">📊</div>
+          <div class="stat-label">Avg Attendance</div>
+          <div class="stat-value">76%</div>
+          <div class="stat-change"><span class="down">↓ 2%</span> this month</div>
+        </div>
+      </div>
+      <div class="dashboard-grid">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Enrollment by Department</span></div>
+          <canvas id="dept-chart" height="200"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Recent Activity</span></div>
+          <div id="admin-activity-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ADMIN STUDENTS PAGE ===== -->
+    <div class="page" id="page-admin-students">
+      <div class="page-header">
+        <h1>Manage Students</h1>
+        <p>Add, edit and manage student accounts</p>
+      </div>
+      <div class="admin-toolbar">
+        <input class="search-input" placeholder="Search students...">
+        <select class="select-input"><option>All Departments</option><option>CSE</option><option>ECE</option><option>ME</option></select>
+        <select class="select-input"><option>All Semesters</option><option>1</option><option>2</option><option>3</option><option>4</option></select>
+        <button class="btn btn-primary btn-sm" onclick="showToast('Add student form would open here', 'info')">+ Add Student</button>
+        <button class="btn btn-outline btn-sm" onclick="showToast('Exporting CSV...', 'success')">📤 Export CSV</button>
+      </div>
+      <div class="card">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Semester</th>
+                <th>CGPA</th>
+                <th>Attendance</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-students-tbody"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="students-pagination"></div>
+      </div>
+    </div>
+
+    <!-- ===== FACULTY DASHBOARD PAGE ===== -->
+    <div class="page" id="page-faculty-dashboard">
+      <div class="page-header">
+        <h1>Faculty Dashboard</h1>
+        <p>Manage your classes and students</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card" style="--card-color:#6366f1">
+          <div class="stat-icon">📚</div>
+          <div class="stat-label">My Courses</div>
+          <div class="stat-value">4</div>
+          <div class="stat-change">This semester</div>
+        </div>
+        <div class="stat-card" style="--card-color:#10b981">
+          <div class="stat-icon">🧑‍🎓</div>
+          <div class="stat-label">Total Students</div>
+          <div class="stat-value">180</div>
+          <div class="stat-change">Across all courses</div>
+        </div>
+        <div class="stat-card" style="--card-color:#f59e0b">
+          <div class="stat-icon">📝</div>
+          <div class="stat-label">Pending Grading</div>
+          <div class="stat-value">23</div>
+          <div class="stat-change">Assignment submissions</div>
+        </div>
+        <div class="stat-card" style="--card-color:#ef4444">
+          <div class="stat-icon">⚠️</div>
+          <div class="stat-label">Low Attendance</div>
+          <div class="stat-value">7</div>
+          <div class="stat-change">Students below 75%</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Today's Classes</span></div>
+        <div id="faculty-today-classes"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ==================== STATE ====================
+const state = {
+  user: null,
+  role: 'student',
+  currentPage: 'dashboard',
+  theme: 'dark',
+  API_BASE: 'http://localhost:8000/api/v1',
+};
+
+// ==================== SAMPLE DATA ====================
+const sampleData = {
+  student: {
+    id: 'uuid-123', email: 'prudhvi@gmail.com',
+    first_name: 'Venkata', last_name: 'Prudhvi',
+    full_name: 'Venkata Prudhvi', role: 'STUDENT',
+    student_profile: {
+      student_id: '12301246', roll_number: '04',
+      department: 'Computer Science & Engineering',
+      semester: 6, batch_year: 2023, section: 'A',
+      cgpa: 6.6, date_of_birth: '2005-03-15',
+      address: 'kadapa, Andhra Pradesh, India',
+      guardian_name: 'POOJA', guardian_phone: '+91 99887 76655',
+      blood_group: 'AB+'
+    }
+  },
+  faculty: {
+    email: 'faculty@gmail.com', first_name: 'Dr.Faculty', last_name: 'local',
+    full_name: 'Dr. Faculty Local', role: 'FACULTY',
+  },
+  admin: {
+    email: 'admin@gmail.com', first_name: 'Local', last_name: 'Admin',
+    full_name: 'Local Admin', role: 'ADMIN',
+  },
+  attendance: [
+    { course_code: 'CS101', course_name: 'Data Structures & Algorithms', total: 40, attended: 36, percentage: 90 },
+    { course_code: 'CS102', course_name: 'Object Oriented Programming', total: 35, attended: 28, percentage: 80 },
+    { course_code: 'CS201', course_name: 'Database Management Systems', total: 38, attended: 26, percentage: 68 },
+    { course_code: 'CS202', course_name: 'Operating Systems', total: 36, attended: 25, percentage: 69 },
+    { course_code: 'CS301', course_name: 'Computer Networks', total: 30, attended: 25, percentage: 83 },
+    { course_code: 'CS302', course_name: 'Software Engineering', total: 32, attended: 16, percentage: 50 },
+  ],
+  results: [
+    { code: 'CS101', name: 'Data Structures & Algorithms', exam: 'Midterm', marks: 42, max: 50, pct: 84, grade: 'A+' },
+    { code: 'CS101', name: 'Data Structures & Algorithms', exam: 'Final', marks: 85, max: 100, pct: 85, grade: 'A+' },
+    { code: 'CS102', name: 'Object Oriented Programming', exam: 'Midterm', marks: 38, max: 50, pct: 76, grade: 'A' },
+    { code: 'CS102', name: 'Object Oriented Programming', exam: 'Final', marks: 78, max: 100, pct: 78, grade: 'A' },
+    { code: 'CS201', name: 'Database Management Systems', exam: 'Midterm', marks: 35, max: 50, pct: 70, grade: 'B+' },
+    { code: 'CS201', name: 'Database Management Systems', exam: 'Final', marks: 72, max: 100, pct: 72, grade: 'B+' },
+    { code: 'CS202', name: 'Operating Systems', exam: 'Midterm', marks: 40, max: 50, pct: 80, grade: 'A' },
+    { code: 'CS202', name: 'Operating Systems', exam: 'Final', marks: 80, max: 100, pct: 80, grade: 'A' },
+    { code: 'CS301', name: 'Computer Networks', exam: 'Midterm', marks: 45, max: 50, pct: 90, grade: 'O' },
+    { code: 'CS301', name: 'Computer Networks', exam: 'Final', marks: 92, max: 100, pct: 92, grade: 'O' },
+  ],
+  courses: [
+    { id: 1, code: 'CS101', name: 'Data Structures & Algorithms', credits: 4, faculty: 'Dr. Sarah Johnson', room: 'CS-201', color: '#6366f1' },
+    { id: 2, code: 'CS102', name: 'Object Oriented Programming', credits: 3, faculty: 'Prof. R. Kumar', room: 'CS-202', color: '#10b981' },
+    { id: 3, code: 'CS201', name: 'Database Management Systems', credits: 4, faculty: 'Dr. M. Patel', room: 'CS-Lab-1', color: '#f59e0b' },
+    { id: 4, code: 'CS202', name: 'Operating Systems', credits: 3, faculty: 'Dr. A. Singh', room: 'CS-203', color: '#ef4444' },
+    { id: 5, code: 'CS301', name: 'Computer Networks', credits: 4, faculty: 'Prof. V. Rajan', room: 'CS-204', color: '#06b6d4' },
+    { id: 6, code: 'CS302', name: 'Software Engineering', credits: 3, faculty: 'Dr. Sarah Johnson', room: 'CS-205', color: '#8b5cf6' },
+  ],
+  assignments: [
+    { id: 1, title: 'Binary Search Tree Implementation', course: 'CS101', dueDate: '2024-12-20', status: 'pending', maxMarks: 10 },
+    { id: 2, title: 'ER Diagram for Library System', course: 'CS201', dueDate: '2024-12-18', status: 'submitted', maxMarks: 10 },
+    { id: 3, title: 'Socket Programming Lab', course: 'CS301', dueDate: '2024-12-15', status: 'overdue', maxMarks: 10 },
+    { id: 4, title: 'UML Class Diagrams', course: 'CS302', dueDate: '2024-12-25', status: 'pending', maxMarks: 15 },
+    { id: 5, title: 'Thread Synchronization', course: 'CS202', dueDate: '2024-12-22', status: 'pending', maxMarks: 10 },
+  ],
+  timetable: {
+    Mon: [
+      { time: '9:00', course: 'CS101', name: 'Data Structures', faculty: 'Dr. Sarah', room: 'CS-201', type: 'lecture' },
+      { time: '11:00', course: 'CS201', name: 'DBMS', faculty: 'Dr. Patel', room: 'CS-Lab-1', type: 'lab' },
+      { time: '2:00', course: 'CS302', name: 'Soft. Engg.', faculty: 'Dr. Sarah', room: 'CS-205', type: 'lecture' },
+    ],
+    Tue: [
+      { time: '9:00', course: 'CS102', name: 'OOP', faculty: 'Prof. Kumar', room: 'CS-202', type: 'lecture' },
+      { time: '11:00', course: 'CS301', name: 'Networks', faculty: 'Prof. Rajan', room: 'CS-204', type: 'lecture' },
+      { time: '3:00', course: 'CS202', name: 'OS', faculty: 'Dr. Singh', room: 'CS-203', type: 'lecture' },
+    ],
+    Wed: [
+      { time: '9:00', course: 'CS101', name: 'Data Structures', faculty: 'Dr. Sarah', room: 'CS-201', type: 'lecture' },
+      { time: '2:00', course: 'CS102', name: 'OOP Lab', faculty: 'Prof. Kumar', room: 'CS-Lab-2', type: 'lab' },
+    ],
+    Thu: [
+      { time: '10:00', course: 'CS201', name: 'DBMS', faculty: 'Dr. Patel', room: 'CS-202', type: 'lecture' },
+      { time: '12:00', course: 'CS302', name: 'Soft. Engg.', faculty: 'Dr. Sarah', room: 'CS-205', type: 'lecture' },
+      { time: '3:00', course: 'CS301', name: 'Networks Lab', faculty: 'Prof. Rajan', room: 'Net-Lab', type: 'lab' },
+    ],
+    Fri: [
+      { time: '9:00', course: 'CS202', name: 'OS', faculty: 'Dr. Singh', room: 'CS-203', type: 'lecture' },
+      { time: '11:00', course: 'CS101', name: 'DS Lab', faculty: 'Dr. Sarah', room: 'CS-Lab-1', type: 'lab' },
+    ],
+  },
+  notices: [
+    { id: 1, title: 'End Semester Examination Schedule - December 2024', category: 'EXAM', time: '2 hours ago', pinned: true, content: 'Examinations commence December 15.' },
+    { id: 2, title: 'Annual Sports Day — Register by Dec 10', category: 'EVENT', time: '1 day ago', pinned: false },
+    { id: 3, title: 'Library Timings Extended to 10 PM', category: 'GENERAL', time: '2 days ago', pinned: false },
+    { id: 4, title: 'Merit Scholarship Applications Open', category: 'IMPORTANT', time: '3 days ago', pinned: true },
+    { id: 5, title: 'Guest Lecture: AI & Machine Learning — Dec 16', category: 'EVENT', time: '4 days ago', pinned: false },
+    { id: 6, title: 'Semester Registration Portal Open', category: 'IMPORTANT', time: '5 days ago', pinned: false },
+  ],
+  materials: [
+    { id: 1, title: 'DS Complete Notes - Unit 1-5', course: 'CS101', type: 'NOTES', size: '4.2 MB', icon: '📄', downloads: 234 },
+    { id: 2, title: 'DBMS Lecture Slides', course: 'CS201', type: 'SLIDES', size: '8.1 MB', icon: '📊', downloads: 189 },
+    { id: 3, title: 'Networks Previous Year Papers', course: 'CS301', type: 'PAST_PAPER', size: '2.3 MB', icon: '📝', downloads: 412 },
+    { id: 4, title: 'OOP Reference Book', course: 'CS102', type: 'BOOK', size: '12.5 MB', icon: '📚', downloads: 156 },
+    { id: 5, title: 'OS Lab Manual', course: 'CS202', type: 'PDF', size: '3.7 MB', icon: '🔧', downloads: 98 },
+    { id: 6, title: 'Software Engineering Case Studies', course: 'CS302', type: 'PDF', size: '5.2 MB', icon: '💼', downloads: 143 },
+    { id: 7, title: 'DS Algorithm Visualizations', course: 'CS101', type: 'VIDEO', size: 'Link', icon: '🎬', downloads: 89 },
+    { id: 8, title: 'DBMS Practice Problems', course: 'CS201', type: 'NOTES', size: '1.8 MB', icon: '📄', downloads: 201 },
+  ],
+  adminStudents: Array.from({length: 20}, (_, i) => ({
+    id: `CSE2024${String(i+1).padStart(3,'0')}`,
+    name: ['Arjun Sharma', 'Priya Patel', 'Rohit Kumar', 'Sneha Gupta', 'Vikram Singh'][i % 5],
+    department: ['CSE', 'ECE', 'ME', 'CE', 'EEE'][i % 5],
+    semester: (i % 6) + 1,
+    cgpa: (6.5 + (i * 0.15)).toFixed(1),
+    attendance: Math.floor(65 + Math.random() * 30),
+    status: i % 8 === 0 ? 'inactive' : 'active',
+  })),
+};
+
+// ==================== AUTH ====================
+let selectedRole = 'student';
+
+function setRole(role, el) {
+  selectedRole = role;
+  document.querySelectorAll('.role-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function handleLogin() {
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+  const btn = document.getElementById('login-btn');
+
+  if (!email || !password) { showToast('Please fill in all fields', 'error'); return; }
+
+  btn.innerHTML = '<div class="spinner" style="width:20px;height:20px;border-width:2px"></div>';
+  btn.disabled = true;
+
+  setTimeout(() => {
+    // Simulate authentication
+    let user;
+    if (selectedRole === 'admin' || email.includes('admin')) {
+      user = {...sampleData.admin, role: 'ADMIN'};
+    } else if (selectedRole === 'faculty' || email.includes('faculty')) {
+      user = {...sampleData.faculty, role: 'FACULTY'};
+    } else {
+      user = {...sampleData.student};
+    }
+
+    state.user = user;
+    state.role = user.role.toLowerCase();
+    localStorage.setItem('portal_user', JSON.stringify(user));
+    localStorage.setItem('portal_token', 'demo_jwt_token_' + Date.now());
+
+    showApp();
+    showToast(`Welcome back, ${user.first_name}! 👋`, 'success');
+    btn.innerHTML = '<span>Sign In</span> →';
+    btn.disabled = false;
+  }, 1200);
+}
+
+function handleLogout() {
+  localStorage.removeItem('portal_user');
+  localStorage.removeItem('portal_token');
+  state.user = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+  showToast('Logged out successfully', 'info');
+}
+
+function showLogin() {
+  document.getElementById('login-card').classList.remove('hidden');
+  document.getElementById('forgot-card').classList.add('hidden');
+}
+
+function showForgotPassword() {
+  document.getElementById('login-card').classList.add('hidden');
+  document.getElementById('forgot-card').classList.remove('hidden');
+}
+
+function handlePasswordReset() {
+  showToast('OTP sent to your email address!', 'success');
+  document.getElementById('otp-group').classList.remove('hidden');
+  document.getElementById('new-password-group').classList.remove('hidden');
+}
+
+// ==================== APP INIT ====================
+function showApp() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  const user = state.user;
+  const initials = (user.first_name[0] + (user.last_name[0] || '')).toUpperCase();
+
+  // Setup sidebar
+  document.getElementById('sidebar-name').textContent = user.full_name || user.first_name;
+  document.getElementById('sidebar-role').textContent = user.role;
+  document.getElementById('sidebar-avatar').textContent = initials;
+  document.getElementById('topbar-avatar').textContent = initials;
+  document.getElementById('welcome-name').textContent = user.first_name;
+
+  // Show correct nav
+  document.getElementById('student-nav').classList.add('hidden');
+  document.getElementById('admin-nav').classList.add('hidden');
+  document.getElementById('faculty-nav').classList.add('hidden');
+
+  if (state.role === 'admin') {
+    document.getElementById('admin-nav').classList.remove('hidden');
+    navigate('admin-dashboard', null);
+  } else if (state.role === 'faculty') {
+    document.getElementById('faculty-nav').classList.remove('hidden');
+    navigate('faculty-dashboard', null);
+  } else {
+    document.getElementById('student-nav').classList.remove('hidden');
+    navigate('dashboard', null);
+  }
+
+  initCharts();
+  loadPageData();
+}
+
+// Check existing session
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem('portal_user');
+  const token = localStorage.getItem('portal_token');
+  if (false && saved && token) {
+    state.user = JSON.parse(saved);
+    state.role = state.user.role.toLowerCase();
+    showApp();
+  }
+
+  // Apply saved theme
+  const savedTheme = localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  state.theme = savedTheme;
+  updateThemeUI();
+});
+
+// ==================== NAVIGATION ====================
+function navigate(page, navEl) {
+  // Hide all pages
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+  // Show target page
+  const target = document.getElementById(`page-${page}`);
+  if (target) target.classList.add('active');
+
+  // Update nav active state
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  if (navEl) navEl.classList.add('active');
+
+  // Update page title
+  const titles = {
+    dashboard: 'Dashboard', profile: 'My Profile', courses: 'My Courses',
+    attendance: 'Attendance', results: 'Results & Marks', assignments: 'Assignments',
+    timetable: 'Timetable', notices: 'Notices & Events', materials: 'Study Materials',
+    'admin-dashboard': 'Admin Dashboard', 'admin-students': 'Manage Students',
+    'admin-faculty': 'Manage Faculty', 'admin-courses': 'Courses',
+    'admin-notices': 'Notices', 'admin-results': 'Upload Results', 'admin-reports': 'Reports',
+    'faculty-dashboard': 'Faculty Dashboard', 'faculty-courses': 'My Courses',
+    'faculty-attendance': 'Mark Attendance', 'faculty-assignments': 'Assignments', 'faculty-grades': 'Upload Grades',
+  };
+  document.getElementById('page-title').textContent = titles[page] || page;
+  state.currentPage = page;
+
+  // Load page data
+  loadPageData(page);
+
+  // Close mobile sidebar
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+
+function loadPageData(page) {
+  page = page || state.currentPage;
+  switch(page) {
+    case 'dashboard': renderDashboard(); break;
+    case 'profile': renderProfile(); break;
+    case 'attendance': renderAttendancePage(); break;
+    case 'results': renderResults(); break;
+    case 'courses': renderCourses(); break;
+    case 'assignments': renderAssignments(); break;
+    case 'timetable': renderTimetable(); break;
+    case 'notices': renderNotices(); break;
+    case 'materials': renderMaterials(); break;
+    case 'admin-dashboard': renderAdminDashboard(); break;
+    case 'admin-students': renderAdminStudents(); break;
+    case 'faculty-dashboard': renderFacultyDashboard(); break;
+  }
+}
+
+// ==================== RENDER FUNCTIONS ====================
+
+function renderDashboard() {
+  // Attendance overview
+  const list = document.getElementById('attendance-overview');
+  if (!list) return;
+  list.innerHTML = sampleData.attendance.map(a => `
+    <div class="attendance-item">
+      <div class="attendance-header">
+        <span class="attendance-course">${a.course_code} — ${a.course_name.substring(0,25)}${a.course_name.length > 25 ? '...' : ''}</span>
+        <span class="attendance-pct ${a.percentage >= 75 ? 'status-safe' : a.percentage >= 60 ? 'status-risk' : 'status-danger'}">${a.percentage}%</span>
+      </div>
+      <div class="attendance-bar">
+        <div class="attendance-fill ${a.percentage >= 75 ? 'fill-safe' : a.percentage >= 60 ? 'fill-risk' : 'fill-danger'}" style="width:${a.percentage}%"></div>
+      </div>
+    </div>
+  `).join('');
+
+  // Recent notices
+  const noticeEl = document.getElementById('recent-notices');
+  if (noticeEl) {
+    noticeEl.innerHTML = sampleData.notices.slice(0, 3).map(n => `
+      <div class="notice-item">
+        <span class="notice-badge ${n.category.toLowerCase()}">${n.category}</span>
+        <div class="notice-content">
+          <div class="notice-title">${n.title}</div>
+          <div class="notice-time">${n.time}</div>
+        </div>
+        ${n.pinned ? '<span class="notice-pin">📌</span>' : ''}
+      </div>
+    `).join('');
+  }
+
+  // Upcoming deadlines
+  const deadlines = document.getElementById('upcoming-deadlines');
+  if (deadlines) {
+    deadlines.innerHTML = sampleData.assignments.filter(a => a.status === 'pending').map(a => `
+      <div style="padding:12px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center">
+        <div style="width:40px;height:40px;background:var(--bg-3);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">📝</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600">${a.title.substring(0,28)}...</div>
+          <div style="font-size:11px;color:var(--text-3)">${a.course} · Due ${a.dueDate}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Animate CGPA ring
+  const cgpaVal = state.user?.student_profile?.cgpa || 8.4;
+  setTimeout(() => {
+    const ring = document.getElementById('cgpa-ring-fill');
+    if (ring) {
+      const circumference = 2 * Math.PI * 54;
+      const offset = circumference - (cgpaVal / 10) * circumference;
+      ring.style.strokeDashoffset = offset;
+    }
+    const display = document.getElementById('cgpa-display');
+    if (display) display.textContent = cgpaVal;
+  }, 300);
+}
+
+function renderProfile() {
+  const user = state.user;
+  const sp = user.student_profile || {};
+
+  document.getElementById('profile-avatar-lg').textContent = (user.first_name[0] + (user.last_name || '')[0]).toUpperCase();
+  document.getElementById('profile-fullname').textContent = user.full_name || user.first_name;
+
+  document.getElementById('pinfo-name').textContent = user.full_name;
+  document.getElementById('pinfo-email').textContent = user.email;
+  document.getElementById('pinfo-phone').textContent = user.phone || '+91 98765 43210';
+  document.getElementById('pinfo-dob').textContent = sp.date_of_birth || '15 March 2005';
+  document.getElementById('pinfo-blood').textContent = sp.blood_group || 'B+';
+  document.getElementById('pinfo-address').textContent = sp.address || '42 MG Road, Bangalore';
+
+  document.getElementById('pinfo-sid').textContent = sp.student_id || 'CSE2024001';
+  document.getElementById('pinfo-roll').textContent = sp.roll_number || '23CSE001';
+  document.getElementById('pinfo-dept').textContent = sp.department || 'Computer Science & Engineering';
+  document.getElementById('pinfo-sem').textContent = `Semester ${sp.semester || 3}`;
+  document.getElementById('pinfo-section').textContent = sp.section || 'A';
+  document.getElementById('pinfo-batch').textContent = sp.batch_year || '2024';
+  document.getElementById('pinfo-guardian').textContent = `${sp.guardian_name || 'Rajesh Sharma'} (${sp.guardian_phone || '+91 99887 76655'})`;
+  document.getElementById('prof-cgpa').textContent = sp.cgpa || '8.4';
+}
+
+function renderAttendancePage() {
+  const list = document.getElementById('attendance-detail-list');
+  if (!list) return;
+  list.innerHTML = sampleData.attendance.map(a => `
+    <div class="attendance-item" style="margin-bottom:20px">
+      <div class="attendance-header">
+        <div>
+          <div style="font-weight:600;font-size:14px">${a.course_code} — ${a.course_name}</div>
+          <div style="font-size:12px;color:var(--text-3)">Attended ${a.attended} of ${a.total} classes</div>
+        </div>
+        <div style="text-align:right">
+          <div class="attendance-pct ${a.percentage >= 75 ? 'status-safe' : a.percentage >= 60 ? 'status-risk' : 'status-danger'}" style="font-size:20px;font-family:var(--font-display)">${a.percentage}%</div>
+          <div class="attendance-status ${a.percentage >= 75 ? 'status-safe' : a.percentage >= 60 ? 'status-risk' : 'status-danger'}">${a.percentage >= 75 ? '✅ Safe' : a.percentage >= 60 ? '⚠️ At Risk' : '🚨 Danger'}</div>
+        </div>
+      </div>
+      <div class="attendance-bar" style="height:8px;margin-top:8px">
+        <div class="attendance-fill ${a.percentage >= 75 ? 'fill-safe' : a.percentage >= 60 ? 'fill-risk' : 'fill-danger'}" style="width:${a.percentage}%"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderResults() {
+  const tbody = document.getElementById('results-tbody');
+  if (!tbody) return;
+  const gradeColors = { 'O': 'grade-O', 'A+': 'grade-A', 'A': 'grade-A', 'B+': 'grade-B', 'B': 'grade-B', 'C': 'grade-C', 'F': 'grade-F' };
+  tbody.innerHTML = sampleData.results.map(r => `
+    <tr>
+      <td><span style="font-weight:700;color:var(--accent)">${r.code}</span></td>
+      <td>${r.name}</td>
+      <td>${r.exam}</td>
+      <td><strong>${r.marks}</strong></td>
+      <td>${r.max}</td>
+      <td><strong>${r.pct}%</strong></td>
+      <td><span class="grade-badge ${gradeColors[r.grade] || 'grade-C'}">${r.grade}</span></td>
+    </tr>
+  `).join('');
+}
+
+function renderCourses() {
+  const grid = document.getElementById('courses-grid');
+  if (!grid) return;
+  grid.innerHTML = sampleData.courses.map(c => `
+    <div class="card" style="position:relative;overflow:hidden;cursor:pointer;padding:20px" onclick="showToast('Opening ${c.name}...', 'info')">
+      <div style="position:absolute;top:0;left:0;right:0;height:4px;background:${c.color}"></div>
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:14px">
+        <div style="background:${c.color}22;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:700;color:${c.color}">${c.code}</div>
+        <div style="font-size:11px;color:var(--text-3);background:var(--bg-3);padding:4px 8px;border-radius:6px">${c.credits} Credits</div>
+      </div>
+      <div style="font-weight:700;font-size:15px;margin-bottom:8px">${c.name}</div>
+      <div style="font-size:12px;color:var(--text-2);display:flex;flex-direction:column;gap:4px">
+        <div>👨‍🏫 ${c.faculty}</div>
+        <div>🏫 Room ${c.room}</div>
+      </div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);display:flex;gap:8px">
+        <button class="btn btn-outline btn-sm" style="flex:1" onclick="event.stopPropagation();showToast('Opening syllabus...','info')">📄 Syllabus</button>
+        <button class="btn btn-outline btn-sm" style="flex:1" onclick="event.stopPropagation();navigate('materials',null)">📂 Materials</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+let currentAssignmentFilter = 'all';
+function filterAssignments(filter, el) {
+  currentAssignmentFilter = filter;
+  document.querySelectorAll('#page-assignments .role-pill').forEach(p => p.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderAssignments();
+}
+
+function renderAssignments() {
+  const list = document.getElementById('assignments-list');
+  if (!list) return;
+  let assignments = sampleData.assignments;
+  if (currentAssignmentFilter !== 'all') {
+    assignments = assignments.filter(a => a.status === currentAssignmentFilter);
+  }
+  list.innerHTML = assignments.map(a => {
+    const statusLabel = { pending: '⏳ Pending', submitted: '✅ Submitted', overdue: '🚨 Overdue' }[a.status];
+    const statusClass = { pending: 'deadline-due', submitted: 'deadline-submitted', overdue: 'deadline-overdue' }[a.status];
+    return `
+      <div class="assignment-card">
+        <div class="assignment-icon">📝</div>
+        <div class="assignment-info">
+          <div class="assignment-title">${a.title}</div>
+          <div class="assignment-meta">
+            <span>📚 ${a.course}</span>
+            <span>🎯 ${a.maxMarks} marks</span>
+          </div>
+        </div>
+        <div class="assignment-deadline">
+          <span class="deadline-badge ${statusClass}">${statusLabel}</span>
+          <span style="font-size:11px;color:var(--text-3)">Due: ${a.dueDate}</span>
+          ${a.status === 'pending' ? `<button class="btn btn-primary btn-sm" onclick="submitAssignment(${a.id})">Upload</button>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('') || '<div class="empty-state"><div class="empty-icon">📝</div><p>No assignments found</p></div>';
+}
+
+function submitAssignment(id) {
+  const assignment = sampleData.assignments.find(a => a.id === id);
+  if (assignment) {
+    assignment.status = 'submitted';
+    renderAssignments();
+    document.getElementById('assignment-badge').textContent = sampleData.assignments.filter(a => a.status === 'pending').length;
+    showToast('Assignment submitted successfully! ✅', 'success');
+  }
+}
+
+function renderTimetable() {
+  const container = document.getElementById('timetable-container');
+  if (!container) return;
+
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+  const times = ['9:00', '10:00', '11:00', '12:00', '1:00', '2:00', '3:00', '4:00'];
+
+  let html = `<div class="timetable-grid">
+    <div class="tt-header"></div>
+    ${days.map(d => `<div class="tt-header">${d}</div>`).join('')}
+  `;
+
+  times.forEach(time => {
+    html += `<div class="tt-time">${time}</div>`;
+    days.forEach(day => {
+      const slot = sampleData.timetable[day]?.find(s => s.time === time);
+      if (slot) {
+        html += `<div class="tt-slot occupied ${slot.type === 'lab' ? 'lab' : ''}">
+          <div class="tt-course">${slot.course}</div>
+          <div class="tt-room">🏫 ${slot.room}</div>
+          <div class="tt-faculty">${slot.faculty}</div>
+        </div>`;
+      } else {
+        html += `<div class="tt-slot"></div>`;
+      }
+    });
+  });
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+let allNotices = sampleData.notices;
+function filterNotices(category, el) {
+  document.querySelectorAll('#page-notices .role-pill').forEach(p => p.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const filtered = category === 'ALL' ? allNotices : allNotices.filter(n => n.category === category);
+  renderNoticesList(filtered);
+}
+
+function renderNotices() {
+  renderNoticesList(sampleData.notices);
+}
+
+function renderNoticesList(notices) {
+  const container = document.getElementById('notices-container');
+  if (!container) return;
+  container.innerHTML = notices.map(n => `
+    <div class="notice-item" style="cursor:pointer" onclick="showToast('${n.title}','info')">
+      <span class="notice-badge ${n.category.toLowerCase()}">${n.category}</span>
+      <div class="notice-content" style="flex:1">
+        <div class="notice-title" style="font-size:15px">${n.title}</div>
+        ${n.content ? `<div style="font-size:13px;color:var(--text-2);margin-top:4px">${n.content}</div>` : ''}
+        <div class="notice-time">${n.time}</div>
+      </div>
+      ${n.pinned ? '<span class="notice-pin">📌</span>' : ''}
+    </div>
+  `).join('');
+}
+
+let allMaterials = sampleData.materials;
+function searchMaterials(q) {
+  const filtered = allMaterials.filter(m => m.title.toLowerCase().includes(q.toLowerCase()) || m.course.toLowerCase().includes(q.toLowerCase()));
+  renderMaterialsList(filtered);
+}
+function filterMaterials(type) {
+  const filtered = type ? allMaterials.filter(m => m.type === type) : allMaterials;
+  renderMaterialsList(filtered);
+}
+
+function renderMaterials() { renderMaterialsList(sampleData.materials); }
+
+function renderMaterialsList(materials) {
+  const grid = document.getElementById('materials-grid');
+  if (!grid) return;
+  const typeColors = { NOTES: '#6366f1', SLIDES: '#10b981', PDF: '#ef4444', BOOK: '#f59e0b', PAST_PAPER: '#06b6d4', VIDEO: '#8b5cf6', OTHER: '#64748b' };
+  grid.innerHTML = materials.map(m => `
+    <div class="material-card" onclick="showToast('Downloading ${m.title}...', 'success')">
+      <div class="material-icon">${m.icon}</div>
+      <div class="material-title">${m.title}</div>
+      <div class="material-meta">${m.course} · ${m.size}</div>
+      <div class="material-meta">${m.downloads} downloads</div>
+      <div class="material-type-badge" style="background:${typeColors[m.type]}22;color:${typeColors[m.type]}">${m.type}</div>
+    </div>
+  `).join('');
+}
+
+function renderAdminDashboard() {
+  const activityList = document.getElementById('admin-activity-list');
+  if (!activityList) return;
+  const activities = [
+    { text: 'Student CSE2024001 logged in', time: '2m ago', icon: '🔐' },
+    { text: 'New assignment posted in CS101', time: '15m ago', icon: '📝' },
+    { text: 'Marks uploaded for Semester 1', time: '1h ago', icon: '🏆' },
+    { text: 'Notice "Exam Schedule" published', time: '2h ago', icon: '📢' },
+    { text: '3 new students registered', time: '3h ago', icon: '🧑‍🎓' },
+    { text: 'Attendance marked for CS201', time: '5h ago', icon: '✅' },
+  ];
+  activityList.innerHTML = activities.map(a => `
+    <div style="padding:10px 0;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:center">
+      <span style="font-size:18px">${a.icon}</span>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500">${a.text}</div>
+        <div style="font-size:11px;color:var(--text-3)">${a.time}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderAdminStudents() {
+  const tbody = document.getElementById('admin-students-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = sampleData.adminStudents.slice(0, 10).map(s => `
+    <tr>
+      <td><span style="font-weight:700;color:var(--accent)">${s.id}</span></td>
+      <td>${s.name}</td>
+      <td>${s.department}</td>
+      <td>Sem ${s.semester}</td>
+      <td><strong>${s.cgpa}</strong></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:60px;height:4px;background:var(--bg-3);border-radius:2px;overflow:hidden">
+            <div style="width:${s.attendance}%;height:100%;background:${s.attendance>=75?'var(--success)':s.attendance>=60?'var(--warning)':'var(--danger)'}"></div>
+          </div>
+          <span style="font-size:12px">${s.attendance}%</span>
+        </div>
+      </td>
+      <td><span style="padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;background:${s.status==='active'?'rgba(16,185,129,0.15)':'rgba(239,68,68,0.15)'};color:${s.status==='active'?'var(--success)':'var(--danger)'}">${s.status}</span></td>
+      <td>
+        <div class="student-row-actions">
+          <div class="action-btn edit" onclick="showToast('Edit student modal','info')" title="Edit">✏️</div>
+          <div class="action-btn" onclick="showToast('View profile','info')" title="View">👁️</div>
+          <div class="action-btn delete" onclick="showToast('Delete confirmation','error')" title="Delete">🗑️</div>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+
+  // Render pagination
+  const pagination = document.getElementById('students-pagination');
+  if (pagination) {
+    pagination.innerHTML = [1,2,3,'...',12].map((p, i) => `
+      <div class="page-btn ${i===0?'active':''}" onclick="this.parentNode.querySelectorAll('.page-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">${p}</div>
+    `).join('');
+  }
+}
+
+function renderFacultyDashboard() {
+  const list = document.getElementById('faculty-today-classes');
+  if (!list) return;
+  const todaySlots = sampleData.timetable.Mon || [];
+  list.innerHTML = todaySlots.map(s => `
+    <div style="display:flex;gap:16px;align-items:center;padding:14px 0;border-bottom:1px solid var(--border)">
+      <div style="width:60px;text-align:right;font-size:13px;color:var(--text-3);font-weight:600">${s.time}</div>
+      <div style="width:4px;background:${s.type==='lab'?'var(--success)':'var(--accent)'};border-radius:2px;align-self:stretch"></div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:14px">${s.name}</div>
+        <div style="font-size:12px;color:var(--text-2)">${s.course} · ${s.room} · ${s.type}</div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="showToast('Mark attendance for ${s.course}','success')">Mark Attendance</button>
+    </div>
+  `).join('');
+}
+
+// ==================== CHARTS ====================
+let chartsInitialized = false;
+function initCharts() {
+  if (chartsInitialized) return;
+  chartsInitialized = true;
+  setTimeout(() => {
+    initGradesChart();
+    initAttendanceChart();
+    initDeptChart();
+  }, 400);
+}
+
+function initGradesChart() {
+  const ctx = document.getElementById('grades-chart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['CS101', 'CS102', 'CS201', 'CS202', 'CS301', 'CS302'],
+      datasets: [{
+        label: 'Midterm %',
+        data: [84, 76, 70, 80, 90, 72],
+        backgroundColor: 'rgba(99,102,241,0.7)',
+        borderRadius: 6,
+      }, {
+        label: 'Final %',
+        data: [85, 78, 72, 80, 92, 74],
+        backgroundColor: 'rgba(139,92,246,0.7)',
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-2') }}},
+      scales: {
+        y: { beginAtZero: false, min: 50, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'var(--text-3)' } },
+        x: { grid: { display: false }, ticks: { color: 'var(--text-3)' } }
+      }
+    }
+  });
+}
+
+function initAttendanceChart() {
+  const ctx = document.getElementById('attendance-chart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      datasets: [{
+        label: 'Attendance %',
+        data: [82, 79, 75, 78, 80],
+        borderColor: '#6366f1',
+        backgroundColor: 'rgba(99,102,241,0.1)',
+        fill: true, tension: 0.4, pointRadius: 5,
+        pointBackgroundColor: '#6366f1',
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { min: 50, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'var(--text-3)' } },
+        x: { grid: { display: false }, ticks: { color: 'var(--text-3)' } }
+      }
+    }
+  });
+}
+
+function initDeptChart() {
+  const ctx = document.getElementById('dept-chart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['CSE', 'ECE', 'ME', 'CE', 'EEE', 'Others'],
+      datasets: [{
+        data: [320, 245, 198, 156, 178, 150],
+        backgroundColor: ['#6366f1','#10b981','#f59e0b','#ef4444','#06b6d4','#8b5cf6'],
+        borderWidth: 0,
+        hoverOffset: 8,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom', labels: { padding: 20, color: 'var(--text-2)', font: { size: 12 } } }
+      }
+    }
+  });
+}
+
+// ==================== THEME ====================
+function toggleTheme() {
+  state.theme = state.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', state.theme);
+  localStorage.setItem('theme', state.theme);
+  updateThemeUI();
+}
+
+function updateThemeUI() {
+  const isDark = state.theme === 'dark';
+  document.getElementById('theme-icon').textContent = isDark ? '🌙' : '☀️';
+  document.getElementById('theme-label').textContent = isDark ? 'Dark Mode' : 'Light Mode';
+}
+
+// ==================== MOBILE ==================
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+
+// ==================== NOTIFICATIONS ====================
+function toggleNotifications() {
+  const panel = document.getElementById('notif-panel');
+  panel.classList.toggle('open');
+}
+
+document.addEventListener('click', (e) => {
+  const panel = document.getElementById('notif-panel');
+  if (panel && !panel.closest('.topbar-icon-btn')?.contains(e.target)) {
+    panel.classList.remove('open');
+  }
+});
+
+// ==================== MISC ACTIONS ====================
+function downloadMarksMemo() {
+  showToast('Downloading marks memo PDF...', 'success');
+  // In production: window.open(`${state.API_BASE}/results/memo/download/?semester=3`)
+}
+
+let isEditing = false;
+
+function editProfile() {
+  const btn = event.target;
+
+  const fields = [
+    'pinfo-name',
+    'pinfo-phone',
+    'pinfo-address'
+  ];
+
+  if (!isEditing) {
+    // TURN INTO INPUTS
+    fields.forEach(id => {
+      const el = document.getElementById(id);
+      const value = el.textContent;
+      el.innerHTML = `<input type="text" class="form-input" value="${value}" id="${id}-input">`;
+    });
+
+    btn.textContent = "💾 Save Profile";
+    isEditing = true;
+
+  } else {
+    // SAVE VALUES
+    let newName = "";
+    let newPhone = "";
+
+    fields.forEach(id => {
+      const input = document.getElementById(`${id}-input`);
+      const value = input.value;
+      document.getElementById(id).textContent = value;
+
+      if (id === "pinfo-name") newName = value;
+      if (id === "pinfo-phone") newPhone = value;
+    });
+
+    // 🔥 UPDATE TOP SECTION
+    if (newName) {
+      document.getElementById("profile-fullname").textContent = newName;
+      document.getElementById("sidebar-name").textContent = newName;
+      document.getElementById("welcome-name").textContent = newName.split(" ")[0];
+
+      const initials = newName.split(" ").map(n => n[0]).join("").toUpperCase();
+      document.getElementById("profile-avatar-lg").textContent = initials;
+      document.getElementById("sidebar-avatar").textContent = initials;
+      document.getElementById("topbar-avatar").textContent = initials;
+    }
+
+    btn.textContent = "✏️ Edit Profile";
+    isEditing = false;
+
+    showToast("Profile Updated Successfully ✅", "success");
+  }
+}
+
+
+
+function handlePhotoUpload(input) {
+  if (input.files && input.files[0]) {
+    showToast('Profile photo updated!', 'success');
+  }
+}
+
+function handleSearch(query) {
+  if (query.length > 2) showToast(`Searching for "${query}"...`, 'info');
+}
+
+// ==================== TOAST ====================
+function showToast(message, type = 'info', duration = 3500) {
+  const container = document.getElementById('toast-container');
+  const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `
+    <span class="toast-icon">${icons[type]}</span>
+    <span class="toast-text">${message}</span>
+    <span class="toast-close" onclick="this.parentNode.remove()">✕</span>
+  `;
+  container.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(100%)'; toast.style.transition = '0.3s'; setTimeout(() => toast.remove(), 300); }, duration);
+}
+
+// Render dashboard CGPA ring immediately (before chart init)
+setTimeout(() => {
+  if (document.getElementById('cgpa-ring-fill')) {
+    const circumference = 2 * Math.PI * 54;
+    document.getElementById('cgpa-ring-fill').setAttribute('stroke-dasharray', circumference);
+    document.getElementById('cgpa-ring-fill').setAttribute('stroke-dashoffset', circumference);
+  }
+}, 100);
+</script>
+</body>
+</html>
