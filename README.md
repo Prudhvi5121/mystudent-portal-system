@@ -1,270 +1,151 @@
-# 🎓 EduPortal — Student Management System
+# 🎓 MyStudent Portal System
 
-A production-ready, full-stack Student Portal with modern UI, JWT authentication, role-based access control, and comprehensive academic management features.
+A modern, responsive Student Management Portal built using **HTML, CSS, and Vanilla JavaScript** with role-based dashboards for Student, Faculty, and Admin users.
+
+This project simulates a real-world academic management system with interactive UI, analytics, and structured academic data.
 
 ---
 
 ## 🚀 Quick Start
 
-### Option A: Frontend Only (No Backend)
-Simply open `frontend/index.html` in your browser — the demo runs with sample data immediately.
+### 🔹 Frontend Demo (No Backend Required)
 
-**Demo Credentials:**
-| Role | Email | Password |
-|------|-------|----------|
-| Student | student1@portal.edu | Student@123 |
-| Faculty | faculty@portal.edu | Faculty@123 |
-| Admin | admin@portal.edu | Admin@123 |
+1. Download or clone this repository
+2. Open `index.html` in your browser
+
+That’s it ✅  
+The system runs instantly with built-in sample data.
 
 ---
 
-### Option B: Full Stack Setup
+## 🔐 Demo Login Credentials
 
-#### Prerequisites
-- Python 3.10+
-- pip
-- Node.js (optional, for live reload)
-- PostgreSQL (optional, SQLite works for dev)
+| Role     | Email               | Password        |
+|----------|--------------------|-----------------|
+| Student  | prudhvi@gmail.com  | Prudhvi@123     |
+| Faculty  | faculty@gmail.com  | Any password    |
+| Admin    | admin@gmail.com    | Any password    |
 
-#### Backend Setup
-
-```bash
-# 1. Navigate to backend
-cd student_portal/backend
-
-# 2. Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# 3. Install dependencies
-pip install -r requirements.txt
-
-# 4. Configure environment
-cp .env.example .env
-# Edit .env with your settings
-
-# 5. Run migrations
-python manage.py migrate
-
-# 6. Create superuser
-python manage.py createsuperuser
-
-# 7. Populate sample data
-python manage.py populate_sample_data
-
-# 8. Start development server
-python manage.py runserver
-```
-
-Backend runs at: `http://localhost:8000`
-API Docs (Swagger): `http://localhost:8000/api/docs/`
-Django Admin: `http://localhost:8000/admin/`
-
-#### Frontend Setup
-
-```bash
-# Open with live server (VS Code extension recommended)
-# Or use Python's simple server:
-cd student_portal/frontend
-python -m http.server 5500
-```
-
-Frontend runs at: `http://localhost:5500`
+> Note: This is a frontend demo system using simulated authentication logic.
 
 ---
 
-### Option C: Docker (Production)
+## ✨ Features
 
-```bash
-# 1. Set environment variable
-export SECRET_KEY="your-secret-key-50-chars-min"
-export DB_PASSWORD="your-db-password"
+### 👨‍🎓 Student Dashboard
+- Overview statistics (CGPA, Attendance, Courses)
+- Subject-wise attendance tracking
+- Results & Marks table
+- Assignment submission system
+- Weekly timetable view
+- Study materials download section
+- Notices & announcements
+- Editable profile with photo upload
+- Animated CGPA circular progress ring
+- Dark / Light theme toggle
 
-# 2. Start all services
-docker-compose up -d
+---
 
-# 3. View logs
-docker-compose logs -f backend
-```
+### 👨‍🏫 Faculty Dashboard
+- Faculty overview panel
+- Today’s class schedule
+- Mark attendance option
+- Assignment management interface
+- Upload grades UI
+
+---
+
+### ⚙️ Admin Dashboard
+- Manage students table
+- Manage faculty
+- Course overview
+- Upload results section
+- Analytics charts
+- Pagination system
+- Status management UI
+
+---
+
+## 🎨 UI & Design Highlights
+
+- Modern Glassmorphism design
+- Fully responsive layout (Mobile + Tablet + Desktop)
+- Chart.js analytics (Bar, Line, Doughnut)
+- Toast notifications system
+- Animated elements
+- Interactive timetable grid
+- Role-based sidebar navigation
+- Premium typography (Syne + DM Sans)
+- Clean UI with gradient accents
+
+---
+
+## 🛠 Tech Stack
+
+- HTML5
+- CSS3 (Custom properties + Responsive design)
+- Vanilla JavaScript (ES6)
+- Chart.js
+- LocalStorage (for demo login session)
 
 ---
 
 ## 📁 Project Structure
 
-```
-student_portal/
-├── frontend/
-│   └── index.html              # Complete SPA frontend
+mystudent-portal-system/
 │
-├── backend/
-│   ├── config/
-│   │   ├── settings.py         # Django settings
-│   │   ├── urls.py             # Main URL config
-│   │   └── wsgi.py
-│   │
-│   ├── apps/
-│   │   ├── accounts/           # Auth, Users, Profiles
-│   │   │   ├── models.py       # User, StudentProfile, FacultyProfile, OTP, LoginActivity, AuditLog
-│   │   │   ├── serializers.py  # All auth serializers
-│   │   │   ├── views.py        # Login, Register, Password Reset, Profile
-│   │   │   ├── urls.py         # Auth URL routes
-│   │   │   ├── permissions.py  # IsAdminUser, IsStudentUser, IsFacultyUser, etc.
-│   │   │   ├── middleware.py   # Login activity tracking
-│   │   │   └── management/commands/populate_sample_data.py
-│   │   │
-│   │   ├── courses/            # Departments, Courses, Enrollments
-│   │   ├── attendance/         # Sessions, Records, Analytics
-│   │   ├── results/            # Marks, Grades, PDF Memo
-│   │   ├── assignments/        # Assignments, Submissions
-│   │   ├── notices/            # Announcements, Events
-│   │   ├── timetable/          # Weekly schedule
-│   │   └── materials/          # Study materials, download center
-│   │
-│   ├── requirements.txt
-│   ├── manage.py
-│   ├── Dockerfile
-│   └── .env.example
-│
-└── docker-compose.yml
-```
+├── index.html
+├── README.md
+└── assets
+
 
 ---
 
-## 🔌 API Reference
+## 🔄 How Authentication Works (Demo Mode)
 
-### Authentication
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/v1/auth/login/` | Login with email/password → JWT tokens |
-| POST | `/api/v1/auth/register/` | Create new user account |
-| POST | `/api/v1/auth/logout/` | Invalidate refresh token |
-| POST | `/api/v1/auth/token/refresh/` | Get new access token |
-| POST | `/api/v1/auth/password/reset/request/` | Send OTP to email |
-| POST | `/api/v1/auth/password/reset/confirm/` | Reset with OTP |
-| POST | `/api/v1/auth/password/change/` | Change password |
+This project uses:
+- JavaScript-based role selection
+- LocalStorage session storage
+- Simulated user data
 
-### User / Profile
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET/PATCH | `/api/v1/auth/me/` | Current user info |
-| POST | `/api/v1/auth/me/photo/` | Upload profile photo |
-| GET/PATCH | `/api/v1/auth/me/student-profile/` | Student profile details |
-| GET | `/api/v1/auth/me/login-activity/` | Login history |
-
-### Courses
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/courses/` | All active courses |
-| GET | `/api/v1/courses/my-enrollments/` | Student's enrolled courses |
-| GET | `/api/v1/courses/admin/` | Admin course management |
-
-### Attendance
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/attendance/summary/` | Subject-wise attendance % |
-| GET | `/api/v1/attendance/course/<id>/` | Detailed records |
-| POST | `/api/v1/attendance/admin/mark/` | Bulk mark attendance |
-
-### Results
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/results/my/?semester=1` | Student marks |
-| GET | `/api/v1/results/memo/download/` | PDF marks memo |
-| POST | `/api/v1/results/admin/upload/` | Upload marks |
-
-### Assignments
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/assignments/` | Student's assignments |
-| POST | `/api/v1/assignments/<id>/submit/` | Submit assignment |
-| GET | `/api/v1/assignments/submissions/` | Submission history |
-
-### Timetable
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/timetable/my/` | Student's weekly timetable |
-
-### Notices
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/notices/` | All notices (filtered by role) |
-| POST | `/api/v1/notices/admin/` | Create notice (Admin/Faculty) |
-
-### Materials
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/materials/` | All study materials |
-| GET | `/api/v1/materials/<id>/` | Get material (increments download count) |
-| POST | `/api/v1/materials/admin/` | Upload material |
+No backend or database is connected in this version.
 
 ---
 
-## 🔐 Security Features
+## 📌 Future Enhancements
 
-- **JWT Authentication** with short-lived access tokens (2h) and rotating refresh tokens (7 days)
-- **Token blacklisting** on logout
-- **Password hashing** via Django's PBKDF2 (bcrypt-compatible)
-- **OTP verification** for password reset (10-minute expiry)
-- **Login activity tracking** with IP address and user agent logging
-- **Audit trail** for all CRUD operations
-- **Role-based access control** (Student / Faculty / Admin)
-- **CORS configuration** for API access control
-- **Rate limiting** ready (via Redis)
-- **HTTPS enforcement** in production
+- Connect to Django REST Framework backend
+- Add JWT authentication
+- Add database (PostgreSQL)
+- Implement real file uploads
+- Deploy to cloud (Render / Vercel / AWS)
+- Add WebSocket notifications
 
 ---
 
-## 🎨 Frontend Features
+## 📷 Screenshots
 
-- **Dual theme**: Dark/Light mode with persistent preference
-- **Responsive**: Mobile, tablet, and desktop layouts
-- **Role-based UI**: Different sidebar and pages for Student / Faculty / Admin
-- **Real-time notifications** panel
-- **Chart.js analytics**: Grades bar chart, attendance trend, department doughnut
-- **CGPA ring** with animated SVG
-- **Assignment management** with status tracking
-- **Interactive timetable** grid
-- **Toast notifications** for all actions
-- **Glassmorphism + gradient accents**
-- **Fonts**: Syne (display) + DM Sans (body) — distinctive, premium feel
+(Add screenshots here if you want for better GitHub appearance)
 
 ---
 
-## 🧩 Tech Stack
+## 💡 Use Case
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | HTML5, CSS3, Vanilla JS (ES6+), Chart.js |
-| Backend | Django 4.2, Django REST Framework |
-| Auth | djangorestframework-simplejwt (JWT) |
-| Database | SQLite (dev) / PostgreSQL (prod) |
-| Cache | Redis |
-| PDF | ReportLab |
-| Email | SMTP (Gmail/SendGrid) |
-| Server | Gunicorn + Nginx |
-| Container | Docker + Docker Compose |
-| API Docs | drf-spectacular (Swagger/OpenAPI) |
+This project demonstrates:
+- Frontend system design
+- Role-based UI rendering
+- Dashboard architecture
+- Academic management workflow simulation
+- Clean UI/UX implementation
 
 ---
 
-## 🔄 Extending to React/Next.js
+## 👨‍💻 Author
 
-The backend is fully API-first. To integrate with React:
-
-```javascript
-// API client example
-const API = 'http://localhost:8000/api/v1';
-const token = localStorage.getItem('access_token');
-
-const response = await fetch(`${API}/attendance/summary/`, {
-  headers: { 'Authorization': `Bearer ${token}` }
-});
-const data = await response.json();
-```
+**Prudhvi**  
+B.Tech — Computer Science  
+Frontend & Backend Enthusiast  
 
 ---
 
-## 📧 Contact & Contributing
-
-Built with ❤️ as a production-ready educational platform template.
-Feel free to extend with: WebSocket notifications, mobile app API, LMS integration, payment gateway for fees.
+⭐ If you like this project, feel free to star the repository!
