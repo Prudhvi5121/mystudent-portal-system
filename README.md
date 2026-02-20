@@ -123,12 +123,6 @@ No backend or database is connected in this version.
 
 ---
 
-## 📷 Screenshots
-
-(Add screenshots here if you want for better GitHub appearance)
-
----
-
 ## 💡 Use Case
 
 This project demonstrates:

@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -6,7 +7,7 @@ SECRET_KEY = 'django-insecure-739t1s478$46bt%b1&ji*!(7-xou64na-m$9b&@iq^przw!29c
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['prudhvi5121.pythonanywhere.com']
 
 # ========================
 # APPLICATIONS
@@ -114,3 +115,10 @@ USE_I18N = True
 USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+STATIC_URL = '/static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]

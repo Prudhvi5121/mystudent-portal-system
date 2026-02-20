@@ -1,18 +1,17 @@
 from django.shortcuts import render
-
-# Create your views here.
 from django.contrib.auth.decorators import login_required
-from datetime import datetime
+from django.utils import timezone
 from .models import FacultyTimetable
+
 
 @login_required
 def faculty_courses(request):
-    today_day = datetime.now().strftime("%a")
+    today_day = timezone.now().strftime("%A")
 
     today_classes = FacultyTimetable.objects.filter(
         faculty=request.user,
         day=today_day
-    )
+    ).order_by('start_time')
 
     weekly_classes = FacultyTimetable.objects.filter(
         faculty=request.user
@@ -21,4 +20,5 @@ def faculty_courses(request):
     return render(request, 'faculty_courses.html', {
         'today_classes': today_classes,
         'weekly_classes': weekly_classes,
+        'today_day': today_day,
     })
