@@ -22,6 +22,10 @@ This project simulates a real-world academic management system with interactive 
 That’s it ✅  
 The system runs instantly with built-in sample data.
 
+
+⚠ This repository includes both:
+- Frontend-only demo mode
+- Django backend deployed on PythonAnywhere
 ---
 
 ## 🔐 Demo Login Credentials
