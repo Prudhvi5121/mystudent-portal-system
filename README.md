@@ -1,5 +1,11 @@
 # 🎓 MyStudent Portal System
 
+🌐 Live Demo
+
+🔗 https://prudhvi5121.pythonanywhere.com
+
+The project is deployed and publicly accessible via PythonAnywhere.
+
 A modern, responsive Student Management Portal built using **HTML, CSS, and Vanilla JavaScript** with role-based dashboards for Student, Faculty, and Admin users.
 
 This project simulates a real-world academic management system with interactive UI, analytics, and structured academic data.
